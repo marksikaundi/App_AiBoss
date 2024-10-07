@@ -1,66 +1,76 @@
-"use client"
+"use client";
 
-import React, { useState, useRef, useCallback, useEffect } from 'react'
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop'
-import 'react-image-crop/dist/ReactCrop.css'
-import { Slider } from "@/components/ui/slider"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import ReactCrop, {
+  type Crop,
+  centerCrop,
+  makeAspectCrop,
+} from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
-  aspect: number,
+  aspect: number
 ) {
   return centerCrop(
     makeAspectCrop(
       {
-        unit: '%',
+        unit: "%",
         width: 90,
       },
       aspect,
       mediaWidth,
-      mediaHeight,
+      mediaHeight
     ),
     mediaWidth,
-    mediaHeight,
-  )
+    mediaHeight
+  );
 }
 
 export default function ImageEditor() {
-  const [imgSrc, setImgSrc] = useState('')
-  const [crop, setCrop] = useState<Crop>()
-  const [aspect, setAspect] = useState<number | undefined>(16 / 9)
-  const [brightness, setBrightness] = useState(100)
-  const [contrast, setContrast] = useState(100)
-  const [saturation, setSaturation] = useState(100)
-  const [text, setText] = useState('')
-  const [font, setFont] = useState('Arial')
-  const [textColor, setTextColor] = useState('#000000')
-  const [textX, setTextX] = useState(50)
-  const [textY, setTextY] = useState(50)
-  const imgRef = useRef<HTMLImageElement | null>(null)
-  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [imgSrc, setImgSrc] = useState("");
+  const [crop, setCrop] = useState<Crop>();
+  const [aspect, setAspect] = useState<number | undefined>(16 / 9);
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [text, setText] = useState("");
+  const [font, setFont] = useState("Arial");
+  const [textColor, setTextColor] = useState("#000000");
+  const [textX, setTextX] = useState(50);
+  const [textY, setTextY] = useState(50);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined)
-      const reader = new FileReader()
-      reader.addEventListener('load', () =>
-        setImgSrc(reader.result?.toString() || ''),
-      )
-      reader.readAsDataURL(e.target.files[0])
+      setCrop(undefined);
+      const reader = new FileReader();
+      reader.addEventListener("load", () =>
+        setImgSrc(reader.result?.toString() || "")
+      );
+      reader.readAsDataURL(e.target.files[0]);
     }
   }
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
-      const { width, height } = e.currentTarget
-      setCrop(centerAspectCrop(width, height, aspect))
+      const { width, height } = e.currentTarget;
+      setCrop(centerAspectCrop(width, height, aspect));
     }
   }
 
@@ -72,24 +82,24 @@ export default function ImageEditor() {
       crop.width === 0 ||
       crop.height === 0
     ) {
-      return
+      return;
     }
 
-    const image = imgRef.current
-    const canvas = previewCanvasRef.current
-    const ctx = canvas.getContext('2d')
+    const image = imgRef.current;
+    const canvas = previewCanvasRef.current;
+    const ctx = canvas.getContext("2d");
 
     if (!ctx) {
-      return
+      return;
     }
 
-    const scaleX = image.naturalWidth / image.width
-    const scaleY = image.naturalHeight / image.height
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
 
-    canvas.width = crop.width
-    canvas.height = crop.height
+    canvas.width = crop.width;
+    canvas.height = crop.height;
 
-    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
     ctx.drawImage(
       image,
       crop.x * scaleX,
@@ -100,37 +110,46 @@ export default function ImageEditor() {
       0,
       crop.width,
       crop.height
-    )
+    );
 
     // Add text overlay
-    ctx.filter = 'none'
-    ctx.fillStyle = textColor
-    ctx.font = `20px ${font}`
-    ctx.textBaseline = 'top'
-    const textWidth = ctx.measureText(text).width
-    const x = (textX / 100) * crop.width - (textWidth / 2)
-    const y = (textY / 100) * crop.height
-    ctx.fillText(text, x, y)
-
-  }, [crop, brightness, contrast, saturation, text, font, textColor, textX, textY])
+    ctx.filter = "none";
+    ctx.fillStyle = textColor;
+    ctx.font = `20px ${font}`;
+    ctx.textBaseline = "top";
+    const textWidth = ctx.measureText(text).width;
+    const x = (textX / 100) * crop.width - textWidth / 2;
+    const y = (textY / 100) * crop.height;
+    ctx.fillText(text, x, y);
+  }, [
+    crop,
+    brightness,
+    contrast,
+    saturation,
+    text,
+    font,
+    textColor,
+    textX,
+    textY,
+  ]);
 
   useEffect(() => {
-    applyEdits()
-  }, [applyEdits])
+    applyEdits();
+  }, [applyEdits]);
 
   const downloadImage = () => {
-    if (!previewCanvasRef.current) return
+    if (!previewCanvasRef.current) return;
 
     previewCanvasRef.current.toBlob((blob) => {
-      if (!blob) return
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.download = 'edited-image.jpg'
-      link.href = url
-      link.click()
-      URL.revokeObjectURL(url)
-    }, 'image/jpeg')
-  }
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "edited-image.jpg";
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }, "image/jpeg");
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -163,7 +182,11 @@ export default function ImageEditor() {
                   alt="Crop me"
                   src={imgSrc}
                   onLoad={onImageLoad}
-                  style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "400px",
+                    objectFit: "contain",
+                  }}
                 />
               </ReactCrop>
             </div>
@@ -174,14 +197,18 @@ export default function ImageEditor() {
           <canvas
             ref={previewCanvasRef}
             style={{
-              border: '1px solid black',
-              objectFit: 'contain',
-              width: '100%',
-              height: 'auto',
-              maxHeight: '400px'
+              border: "1px solid black",
+              objectFit: "contain",
+              width: "100%",
+              height: "auto",
+              maxHeight: "400px",
             }}
           />
-          <Button onClick={downloadImage} disabled={!imgSrc} className="mt-4 w-full">
+          <Button
+            onClick={downloadImage}
+            disabled={!imgSrc}
+            className="mt-4 w-full"
+          >
             Download Edited Image
           </Button>
         </Card>
@@ -252,7 +279,9 @@ export default function ImageEditor() {
                     <SelectContent>
                       <SelectItem value="Arial">Arial</SelectItem>
                       <SelectItem value="Verdana">Verdana</SelectItem>
-                      <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                      <SelectItem value="Times New Roman">
+                        Times New Roman
+                      </SelectItem>
                       <SelectItem value="Courier">Courier</SelectItem>
                     </SelectContent>
                   </Select>
@@ -271,7 +300,9 @@ export default function ImageEditor() {
             <TabsContent value="position">
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="text-x-slider">Text Horizontal Position</Label>
+                  <Label htmlFor="text-x-slider">
+                    Text Horizontal Position
+                  </Label>
                   <Slider
                     id="text-x-slider"
                     min={0}
@@ -298,5 +329,5 @@ export default function ImageEditor() {
         </Card>
       )}
     </div>
-  )
-} 
+  );
+}
